@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: wayne-ai-agent
+  ai:
+    dashscope:
+      api-key: sk-6fa01b0780474b46b2d332347efc14aa
+      chat:
+        options:
+          model: qwen-plus
+
