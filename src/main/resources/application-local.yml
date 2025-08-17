@@ -7,4 +7,15 @@ spring:
       chat:
         options:
           model: qwen-plus
+  #    vectorstore:
+  #      pgvector:
+  #        index-type: HNSW
+  #        dimensions: 1536
+  #        distance-type: COSINE_DISTANCE
+  #        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+  #        initialize-schema: true
+  datasource:
+    url: jdbc:postgresql://pgm-uf6d10u6v55lk9a0po.rwlb.rds.aliyuncs.com/ai_agent
+    username: ai_agent
+    password: 1qazxsw2A
 

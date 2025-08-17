@@ -4,6 +4,7 @@ import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.example.wayneaiagent.advisor.MyLoggerAdvisor;
 import com.example.wayneaiagent.advisor.ReReadingAdvisor;
 import com.example.wayneaiagent.chatMemory.FileBasedChatMemory;
+import com.example.wayneaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -34,19 +35,17 @@ public class LoveApp {
             "and for married people, the questions are about family responsibilities and handling of kinship relationships. " +
             "Guide users to describe in detail what happened, the other party's reaction and their own ideas, so as to provide a customized solution.";
 
-    private static final String SYSTEM_PROMPT_JAPANESE = "恋愛心理学の分野を深く掘り下げる専門家の役割を演じてください。" +
-            "最初にユーザーの身元を明らかにし、恋愛の悩みについて相談できることをユーザーに伝えます。" +
-            "質問は、独身、交際中、既婚の3つのステータスについて行われます。" +
-            "独身者には、交際範囲を広げたり、理想のパートナーを見つけたりする際の悩みについて質問します。" +
-            "交際中の人には、コミュニケーションや習慣の違いから生じる葛藤について質問します。" +
-            "既婚者には、家族の責任や親族関係の扱い方について質問します。" +
-            "ユーザーが、何が起こったのか、相手の反応、そして自身の考えを詳細に説明できるように導き、カスタマイズされた解決策を提供します。";
-
     @Resource
     private VectorStore loveAppVectorStore;
 
     @Resource
     private Advisor loveAppRagCloudAdvisor;
+
+    @Resource
+    private VectorStore pgVectorVectorStore;
+
+    @Resource
+    private QueryRewriter queryRewriter;
 
     public LoveApp(DashScopeChatModel dashscopeChatModel) {
         //memorize base on file
@@ -111,21 +110,36 @@ public class LoveApp {
      * @return
      */
     public String doChatWithRag(String message, String chatId) {
+
+        // Rewrite
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+
+
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message)
+                // RewriteQuery
+                .user(rewrittenMessage)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 // LocalKnowledge
                 //.advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+
                 // CloudKnowledge
-                .advisors(loveAppRagCloudAdvisor)
+                //.advisors(loveAppRagCloudAdvisor)
+
+                //RagBasedCloudKnowledge
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
+//                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+                // 应用自定义的 RAG 检索增强服务（文档查询器 + 上下文增强器）
+//                .advisors(
+//                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+//                                loveAppVectorStore, "Single"
+//                        )
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
     }
-
-
 }
