@@ -18,4 +18,14 @@ spring:
     url: jdbc:postgresql://pgm-uf6d10u6v55lk9a0po.rwlb.rds.aliyuncs.com/ai_agent
     username: ai_agent
     password: 1qazxsw2A
+knife4j:
+  enable: true
+  setting:
+    language:en
 
+# searchAPI
+search-api:
+  api-key: RNcL8tMhbu2VfkR4nE8Pv8ji
+  logging:
+  level:
+    org.springframework.ai: DEBUG

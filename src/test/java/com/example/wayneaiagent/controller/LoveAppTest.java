@@ -46,4 +46,32 @@ class LoveAppTest {
         String answer = loveApp.doChatWithRag(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
+
+    @Test
+    void doChatWithTools() {
+        // web search
+        testMessage("Show me some place beautiful for couples to go in tokyo");
+
+        // web scrawling
+        testMessage("please analyse my partner who is screaming to break me up");
+
+        // download picture
+        testMessage("download a picture of moon");
+
+        // run code
+        testMessage("Python3 test");
+
+        // save file
+        testMessage("File saved");
+
+        // output PDF
+        testMessage("a PDF of wedding");
+    }
+
+    private void testMessage(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = loveApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }
