@@ -7,6 +7,14 @@ spring:
       chat:
         options:
           model: qwen-plus
+    mcp:
+      client:
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8127
+    #        stdio:
+    #          servers-configuration: classpath:mcp-servers.json
   #    vectorstore:
   #      pgvector:
   #        index-type: HNSW
